@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Accelerometer Javascript Test</title>
+<meta name="viewport" content="width=device-width,user-scalable=yes" />
+<style>
+body {
+    font-family: helvetica, arial, sans serif;
+}</style>
+</head><body>
+<div id="content">
+   <h1>Accelerometer and Gyroscope</h1>
+   <div id="sphere"></div>
+<ul>
+    <li>acceleration x: <span id="accelerationX"></span></li><br>
+    <li>acceleration y: <span id="accelerationY"></span></li><br>
+    <li>acceleration z: <span id="accelerationZ"></span></li><br>
+    <li>rotation alpha: <span id="rotationAlpha"></span></li><br>
+    <li>rotation beta: <span id="rotationBeta"></span></li><br>
+    <li>rotation gamma: <span id="rotationGamma"></span></li>
+</ul></div>
+<script type="text/javascript">
+var tx,ty,tz=0
+var x = 0, y = 0,
+   vx = 0, vy = 0,
+    ax = 0, ay = 0;
+    var v1=0,v2=0,v3=0,v4=0;
+var msEpoch1=0,msEpoch2=0;
+var sx = 0;
+    var sy = 0;
+    var sz = 0;
+    var a1x=0,a1y=0,a1z=0;
+if (1)
+        {
+            window.ondevicemotion = function(event) {
+            
+            v1= event.accelerationIncludingGravity.x.toFixed(4);
+            v2= event.accelerationIncludingGravity.y.toFixed(4);
+            v3= event.accelerationIncludingGravity.z.toFixed(4);
+            v4=msEpoch1 = (+new Date());
+            // console.log("acc "+event.accelerationIncludingGravity.x.toFixed(4)+" "+event.accelerationIncludingGravity.y.toFixed(4)+" "+event.accelerationIncludingGravity.z.toFixed(4)+" "+msEpoch1.toFixed(4));
+            }
+        }    
+    if (window.DeviceOrientationEvent)
+        {
+        window.addEventListener("deviceorientation", function (event)
+        {
+            processGyro(event.alpha, event.beta, event.gamma);  
+        }, true);
+        }
+    var rkx = .001;//residual error
+    var rky = .001;
+    var rkz = .001;
+function processGyro(alpha,beta,gamma)
+{
+    var t1=0;
+    document.getElementById("rotationAlpha").innerHTML=alpha.toFixed(4);
+    document.getElementById("rotationBeta").innerHTML=beta.toFixed(4);
+    document.getElementById("rotationGamma").innerHTML =gamma.toFixed(4);
+    msEpoch2 = (+new Date());
+    if(abs(v4-msEpoch2)<=5)
+    {
+    //console.log("acc "+v1+" "+v2+" "+v3+" "+v4);
+    //console.log("angles "+alpha.toFixed(4)+" "+beta.toFixed(4)+" "+gamma.toFixed(4)+" "+msEpoch2);
+    t1=((abs(t1-v4))%100)/1000;
+    var c3 = Math.cos(gamma);
+    var c2 = Math.cos(beta);
+    var c1 = Math.cos(alpha);
+        
+    var s1 = Math.sin(alpha);
+    var s2 = Math.sin(beta);
+    var s3 = Math.sin(gamma);
+    
+    var ax = 0;
+    var ay = 0;
+    var az = 0;
+    var Ax = v1;
+    var Ay = v2;
+    var Az = v3;
+    var vx = 0;
+    var vy = 0;
+    var vz = 0;
+    
+    // var al = 1.5,bl = .5,gl = .001;
+    
+    Ax = Ax + 9.8*s3;
+    Ay = Ay + 9.8*(s2*s1);
+    Az = Az + 9.8*(c2*c3);
+    
+    
+    ax = Ax*c3*c1 + Ay*c3*s1 - Az*s3 ;    
+    ay = Ax*(s2*s3*c1 - s1*c2) + Ay*(s1*s2*s3 + c1*c2) + Az*(s2*c1);
+    az = Ax*(c2*s3*c1 + s1*s2) + Ay*(c2*s3*s3 - s2*c1) + Az*(c3*c2);     ax = (ax + .5*a1x)/1.5;
+    ay = (ay + .5*a1y)/1.5;
+    az = (az + .5*a1z)/1.5;    t2 = t1*t1/2;
+    sx = sx + vx*t1 + ax*t2;
+    sy = sy + vy*t1 + ay*t2;
+    sz = sz + vz*t1 + az*t2;             
+    vx = vx + ax*t1;
+    vy = vy + ay*t1;
+    vz = vz + az*t1;
+    
+    a1x = ax;
+    a1y = ay;
+    a1z = az;
+    
+    /*sx = sx + al*rkx;
+    vx = vx + (bl/t1)*rkx;
+    ax = ax + (gl/(2*t1*t1))*rkx;
+    sx = sx + al*rky;
+    vy = vy + (bl/t1)*rky;
+    ay = ay + (gl/(2*t1*t1))*rky;
+    sz = sz + al*rkz;
+    vz = vz + (bl/t1)*rkz;
+    az = az + (gl/(2*t1*t1))*rkz;
+    */
+    
+    console.log("dist "+sx.toFixed(4)+" "+sy.toFixed(4)+" "+sz.toFixed(4)+" acc "+ax.toFixed(4)+" "+ay.toFixed(4)+" "+az.toFixed(4)+" vel "+vx.toFixed(4)+" "+vy.toFixed(4)+" "+vz.toFixed(4)+" t "+t1);
+    //t1=v4;
+    }        
+}/*
+function boundingBoxCheck(){
+    if (x<0) { x = 0; vx = -vx; }
+    if (y<0) { y = 0; vy = -vy; }
+    if (x>document.documentElement.clientWidth-20) { x = document.documentElement.clientWidth-20; vx = -vx; }
+    if (y>document.documentElement.clientHeight-20) { y = document.documentElement.clientHeight-20; vy = -vy; }
+    
+}
+    */function abs(num)
+{
+    if(num<0)
+        num = num*(-1);
+    return num;    
+}
+</script>      
+    </body>
+</html>
